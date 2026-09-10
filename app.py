@@ -9,6 +9,7 @@ load_dotenv()
 
 from flask import (
     Flask,
+    app,
     render_template,
     request,
     jsonify,
@@ -67,8 +68,12 @@ def create_app():
     app = Flask(__name__)
 
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-only-change-me")
-    db_path = os.environ.get("DATABASE_PATH", os.path.join("/tmp", "checkin.db"))
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
+
+    if os.environ.get("APP_ENV") == "development":
+        db_path = os.environ.get("DATABASE_PATH", os.path.join("/tmp", "checkin.db"))
+        app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
+    else:
+        app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["JSON_SORT_KEYS"] = False
 
