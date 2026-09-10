@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block title %}Account{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto space-y-6">
+
+  <div>
+    <h1 class="text-[22px] font-semibold tracking-tight">Account</h1>
+    <p class="text-ink-soft text-sm mt-1">Manage your profile and sign-in details.</p>
+  </div>
+
+  <section class="rounded-3xl bg-card border border-line shadow-soft p-6">
+    <h2 class="font-semibold text-[15px] mb-4">Profile</h2>
+    <form method="POST" class="space-y-4">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="update_profile">
+      <div>
+        <label for="name" class="block text-sm font-medium text-ink-soft mb-1.5">Name</label>
+        <input type="text" id="name" name="name" required value="{{ current_user.name }}"
+               class="w-full rounded-2xl border border-line px-4 py-3.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent">
+      </div>
+      <div>
+        <label for="email" class="block text-sm font-medium text-ink-soft mb-1.5">Email</label>
+        <input type="email" id="email" name="email" required value="{{ current_user.email }}"
+               class="w-full rounded-2xl border border-line px-4 py-3.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent">
+        {% if current_user.email_verified %}
+          <p class="text-xs text-moss-600 mt-1.5">Verified</p>
+        {% else %}
+          <p class="text-xs text-[#8A6420] mt-1.5">Not verified yet</p>
+        {% endif %}
+      </div>
+      <button type="submit"
+              class="w-full rounded-2xl bg-moss-500 py-3.5 font-medium text-white active:scale-[0.99] transition-transform">
+        Save changes
+      </button>
+    </form>
+  </section>
+
+  <section class="rounded-3xl bg-card border border-line shadow-soft p-6">
+    <h2 class="font-semibold text-[15px] mb-1">{{ 'Change password' if current_user.has_password else 'Set a password' }}</h2>
+    <p class="text-xs text-ink-faint mb-4">
+      {% if current_user.has_password %}
+        Choose a new password below.
+      {% else %}
+        Your account currently signs in with Google only. Set a password to also sign in with email.
+      {% endif %}
+    </p>
+    <form method="POST" class="space-y-4">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="change_password">
+      {% if current_user.has_password %}
+      <div>
+        <label for="current_password" class="block text-sm font-medium text-ink-soft mb-1.5">Current password</label>
+        <input type="password" id="current_password" name="current_password" required autocomplete="current-password"
+               class="w-full rounded-2xl border border-line px-4 py-3.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent">
+      </div>
+      {% endif %}
+      <div>
+        <label for="new_password" class="block text-sm font-medium text-ink-soft mb-1.5">New password</label>
+        <input type="password" id="new_password" name="new_password" required autocomplete="new-password" minlength="8"
+               class="w-full rounded-2xl border border-line px-4 py-3.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent">
+      </div>
+      <div>
+        <label for="confirm_new_password" class="block text-sm font-medium text-ink-soft mb-1.5">Confirm new password</label>
+        <input type="password" id="confirm_new_password" name="confirm_new_password" required autocomplete="new-password" minlength="8"
+               class="w-full rounded-2xl border border-line px-4 py-3.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent">
+      </div>
+      <button type="submit"
+              class="w-full rounded-2xl border border-line py-3.5 font-medium text-ink hover:bg-paper transition-colors">
+        {{ 'Update password' if current_user.has_password else 'Set password' }}
+      </button>
+    </form>
+  </section>
+
+  <section class="rounded-3xl bg-card border border-line shadow-soft p-6">
+    <h2 class="font-semibold text-[15px] mb-4">Appearance</h2>
+    <div class="grid grid-cols-3 gap-2" id="themeOptions">
+      <button type="button" data-theme-option="light"
+              class="theme-option rounded-xl border border-line py-3 text-sm font-medium text-ink-soft transition-colors">
+        Light
+      </button>
+      <button type="button" data-theme-option="dark"
+              class="theme-option rounded-xl border border-line py-3 text-sm font-medium text-ink-soft transition-colors">
+        Dark
+      </button>
+      <button type="button" data-theme-option="system"
+              class="theme-option rounded-xl border border-line py-3 text-sm font-medium text-ink-soft transition-colors">
+        System
+      </button>
+    </div>
+  </section>
+
+  <section class="rounded-3xl bg-card border border-line shadow-soft p-6">
+    <h2 class="font-semibold text-[15px] mb-1">Reminders</h2>
+    <p class="text-xs text-ink-faint mb-4">Get a nudge if you haven't checked in yet.</p>
+
+    <form method="POST" class="space-y-4">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="update_reminders">
+
+      <label class="flex items-center justify-between gap-3">
+        <span class="text-sm">Email reminder</span>
+        <input type="checkbox" name="reminder_email_enabled" {{ 'checked' if current_user.reminder_email_enabled }}
+               class="w-5 h-5 rounded border-line text-moss-500 focus:ring-moss-400">
+      </label>
+
+      <div>
+        <label for="reminder_time" class="block text-sm font-medium text-ink-soft mb-1.5">Remind me around</label>
+        <input type="time" id="reminder_time" name="reminder_time" value="{{ current_user.reminder_time }}"
+               class="w-full rounded-2xl border border-line px-4 py-3.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent">
+      </div>
+
+      <button type="submit"
+              class="w-full rounded-2xl border border-line py-3.5 font-medium text-ink hover:bg-paper transition-colors">
+        Save reminder settings
+      </button>
+    </form>
+
+    {% if push_configured %}
+    <div class="mt-5 pt-5 border-t border-line flex items-center justify-between gap-3">
+      <div>
+        <p class="text-sm">Browser push notifications</p>
+        <p class="text-xs text-ink-faint mt-0.5" id="pushStatus">
+          {{ 'Enabled on this device' if current_user.reminder_push_enabled else 'Not enabled' }}
+        </p>
+      </div>
+      <button type="button" id="pushToggleBtn"
+              class="rounded-xl border border-line px-3.5 py-2 text-sm font-medium text-ink hover:bg-paper transition-colors shrink-0">
+        {{ 'Disable' if current_user.reminder_push_enabled else 'Enable' }}
+      </button>
+    </div>
+    {% endif %}
+  </section>
+
+  <section class="rounded-3xl bg-[#FAEBE7] border border-[#EFCFC5] p-6">
+    <h2 class="font-semibold text-[15px] mb-1 text-brick">Delete account</h2>
+    <p class="text-xs text-[#9C5C4A] mb-4 leading-relaxed">
+      This permanently deletes your account and every check-in you've logged. This can't be undone.
+    </p>
+    <form method="POST" class="space-y-3" onsubmit="return confirm('Delete your account and all check-ins? This cannot be undone.');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="delete_account">
+      <div>
+        <label for="confirm_email" class="block text-sm font-medium text-[#9C5C4A] mb-1.5">Type your email to confirm</label>
+        <input type="email" id="confirm_email" name="confirm_email" required placeholder="{{ current_user.email }}"
+               class="w-full rounded-2xl border border-[#EFCFC5] bg-card px-4 py-3.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-brick focus:border-transparent">
+      </div>
+      <button type="submit"
+              class="w-full rounded-2xl bg-brick py-3.5 font-medium text-white active:scale-[0.99] transition-transform">
+        Delete my account
+      </button>
+    </form>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if push_configured %}
+<script src="{{ url_for('static', filename='js/push.js') }}"></script>
+{% endif %}
+<script>
+  (function () {
+    var buttons = document.querySelectorAll('.theme-option');
+    var current = localStorage.getItem('theme') || '{{ current_user.theme }}' || 'system';
+
+    function refresh() {
+      buttons.forEach(function (btn) {
+        var active = btn.dataset.themeOption === current;
+        btn.classList.toggle('bg-moss-500', active);
+        btn.classList.toggle('text-white', active);
+        btn.classList.toggle('border-moss-500', active);
+        btn.classList.toggle('text-ink-soft', !active);
+      });
+    }
+    refresh();
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        current = btn.dataset.themeOption;
+        CheckinTheme.set(current, { persist: true });
+        refresh();
+      });
+    });
+  })();
+
+  {% if push_configured %}
+  (function () {
+    var btn = document.getElementById('pushToggleBtn');
+    var status = document.getElementById('pushStatus');
+    var enabled = {{ 'true' if current_user.reminder_push_enabled else 'false' }};
+
+    btn.addEventListener('click', async function () {
+      btn.disabled = true;
+      try {
+        if (enabled) {
+          await CheckinPush.unsubscribe();
+          enabled = false;
+        } else {
+          const res = await fetch('/api/push/public-key');
+          const data = await res.json();
+          if (!data.publicKey) throw new Error('Push notifications are not configured on this server.');
+          await CheckinPush.subscribe(data.publicKey);
+          enabled = true;
+        }
+        status.textContent = enabled ? 'Enabled on this device' : 'Not enabled';
+        btn.textContent = enabled ? 'Disable' : 'Enable';
+      } catch (err) {
+        alert(err.message || 'Something went wrong.');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  })();
+  {% endif %}
+</script>
+{% endblock %}

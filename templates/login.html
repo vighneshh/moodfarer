@@ -1,0 +1,55 @@
+{% extends "auth_base.html" %}
+{% block title %}Sign in{% endblock %}
+
+{% block content %}
+<div class="rounded-3xl bg-card border border-line shadow-soft p-6">
+  <h2 class="font-semibold text-lg">Welcome back</h2>
+  <p class="text-ink-soft text-sm mt-1">Sign in to continue your check-ins.</p>
+
+  <form method="POST" class="mt-6 space-y-4">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div>
+      <label for="email" class="block text-sm font-medium text-ink-soft mb-1.5">Email</label>
+      <input type="email" id="email" name="email" required autofocus autocomplete="email"
+             value="{{ email or '' }}"
+             class="w-full rounded-2xl border border-line px-4 py-3.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent">
+    </div>
+    <div>
+      <label for="password" class="block text-sm font-medium text-ink-soft mb-1.5">Password</label>
+      <input type="password" id="password" name="password" required autocomplete="current-password"
+             class="w-full rounded-2xl border border-line px-4 py-3.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent">
+    </div>
+
+    <div class="flex items-center justify-between">
+      <label class="flex items-center gap-2 text-sm text-ink-soft">
+        <input type="checkbox" name="remember" class="rounded border-line text-moss-500 focus:ring-moss-400">
+        Stay signed in
+      </label>
+      <a href="{{ url_for('forgot_password') }}" class="text-sm font-medium text-moss-600">Forgot password?</a>
+    </div>
+
+    <button type="submit"
+            class="w-full rounded-2xl bg-moss-500 py-3.5 font-medium text-white active:scale-[0.99] transition-transform">
+      Sign in
+    </button>
+  </form>
+
+  {% if google_configured %}
+  <div class="flex items-center gap-3 my-5">
+    <div class="h-px bg-line flex-1"></div>
+    <span class="text-xs text-ink-faint">or</span>
+    <div class="h-px bg-line flex-1"></div>
+  </div>
+  <a href="{{ url_for('auth_google') }}"
+     class="w-full flex items-center justify-center gap-2.5 rounded-2xl border border-line py-3.5 font-medium text-[15px] text-ink hover:bg-paper transition-colors">
+    <svg class="w-[18px] h-[18px]" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.2-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.6 3 24 3 16.3 3 9.7 7.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 45c5.5 0 10.4-2.1 14.1-5.6l-6.5-5.5C29.5 35.6 26.9 36.5 24 36.5c-5.2 0-9.6-3.3-11.3-7.9l-6.6 5.1C9.6 40.6 16.3 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.2 5.6l6.5 5.5C41.5 36 45 30.6 45 24c0-1.2-.1-2.3-.4-3.5z"/></svg>
+    Sign in with Google
+  </a>
+  {% endif %}
+</div>
+
+<p class="text-center text-sm text-ink-soft mt-6">
+  Don't have an account?
+  <a href="{{ url_for('signup') }}" class="font-medium text-moss-600">Create one</a>
+</p>
+{% endblock %}

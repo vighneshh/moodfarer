@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full" data-theme-pref="{{ current_user.theme if current_user.is_authenticated else 'system' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{% block title %}Check-in{% endblock %}</title>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<script>
+  (function () {
+    var pref = document.documentElement.getAttribute('data-theme-pref') || 'system';
+    var stored = localStorage.getItem('theme');
+    var effective = pref !== 'system' ? pref : (stored || 'system');
+    var isDark = effective === 'dark' || (effective === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.classList.toggle('dark', isDark);
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: 'var(--color-paper)',
+          card: 'var(--color-card)',
+          ink: 'var(--color-ink)',
+          'ink-soft': 'var(--color-ink-soft)',
+          'ink-faint': 'var(--color-ink-faint)',
+          moss: {
+            50:  '#EEF3EC',
+            100: '#DCE7D8',
+            200: '#BBD0B4',
+            300: '#93B589',
+            400: '#6B9660',
+            500: '#4F6F52',
+            600: '#3E5941',
+            700: '#324833',
+          },
+          ochre: '#C98A4B',
+          amber: '#D7A94A',
+          clay: '#CC7A3B',
+          brick: '#B5563F',
+          maroon: '#8B3A3A',
+          line: 'var(--color-line)',
+        },
+        fontFamily: {
+          sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          display: ['Fraunces', 'ui-serif', 'serif'],
+        },
+        boxShadow: {
+          soft: '0 1px 2px rgba(35, 38, 31, 0.04), 0 8px 24px -12px rgba(35, 38, 31, 0.10)',
+          lift: '0 2px 4px rgba(35, 38, 31, 0.05), 0 16px 32px -16px rgba(35, 38, 31, 0.16)',
+        },
+        borderRadius: {
+          '2xl': '1.25rem',
+          '3xl': '1.75rem',
+        },
+      },
+    },
+  };
+</script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="h-full bg-paper text-ink font-sans antialiased">
+
+<div class="min-h-full flex flex-col">
+
+  <!-- Desktop / tablet top bar -->
+  <header class="hidden md:block sticky top-0 z-30 bg-paper/90 backdrop-blur border-b border-line">
+    <div class="max-w-3xl mx-auto px-8 h-16 flex items-center justify-between">
+      <a href="{{ url_for('home') }}" class="flex items-center gap-2.5">
+        <span class="w-8 h-8 rounded-xl bg-moss-500 flex items-center justify-center">
+          <span class="w-2.5 h-2.5 rounded-full bg-moss-100"></span>
+        </span>
+        <span class="font-semibold tracking-tight text-[15px]">Daily Check-in</span>
+      </a>
+      <nav class="flex items-center gap-1">
+        <a href="{{ url_for('home') }}" class="nav-desktop-link {{ 'is-active' if request.endpoint == 'home' }}">Home</a>
+        <a href="{{ url_for('history') }}" class="nav-desktop-link {{ 'is-active' if request.endpoint in ['history', 'history_detail'] }}">History</a>
+        <a href="{{ url_for('insights') }}" class="nav-desktop-link {{ 'is-active' if request.endpoint == 'insights' }}">Insights</a>
+        <button type="button" id="themeToggleDesktop" aria-label="Toggle dark mode"
+                class="nav-desktop-link w-9 h-9 flex items-center justify-center !p-0">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M12 3v1.5M12 19.5V21M4.9 4.9l1.1 1.1M18 18l1.1 1.1M3 12h1.5M19.5 12H21M4.9 19.1 6 18M18 6l1.1-1.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/></svg>
+        </button>
+        {% if current_user.is_authenticated %}
+        <div class="ml-3 pl-3 border-l border-line flex items-center gap-1">
+          <a href="{{ url_for('account') }}" class="nav-desktop-link {{ 'is-active' if request.endpoint == 'account' }}">{{ current_user.name }}</a>
+          <a href="{{ url_for('logout') }}" class="nav-desktop-link">Sign out</a>
+        </div>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  {% if current_user.is_authenticated %}
+  <a href="{{ url_for('account') }}"
+     aria-label="Account"
+     class="md:hidden fixed top-4 right-4 z-30 w-9 h-9 rounded-full bg-card border border-line shadow-soft flex items-center justify-center text-ink-soft">
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M5 19.5c1.3-3 4-4.5 7-4.5s5.7 1.5 7 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+  </a>
+  {% endif %}
+  <button type="button" id="themeToggleMobile" aria-label="Toggle dark mode"
+          class="md:hidden fixed top-4 z-30 w-9 h-9 rounded-full bg-card border border-line shadow-soft flex items-center justify-center text-ink-soft {{ 'right-[3.75rem]' if current_user.is_authenticated else 'right-4' }}">
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M12 3v1.5M12 19.5V21M4.9 4.9l1.1 1.1M18 18l1.1 1.1M3 12h1.5M19.5 12H21M4.9 19.1 6 18M18 6l1.1-1.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/></svg>
+  </button>
+
+  <main class="flex-1 w-full max-w-3xl mx-auto px-4 md:px-8 pb-28 md:pb-16 pt-5 md:pt-10">
+    {% if get_flashed_messages() %}
+      <div class="mb-4 space-y-2">
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+          <div class="rounded-2xl border px-4 py-3 text-sm {{ 'bg-[#FAEBE7] border-[#EFCFC5] text-brick' if category == 'error' else 'bg-moss-50 border-moss-100 text-moss-600' }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if current_user.is_authenticated and not current_user.email_verified %}
+      <div class="mb-4 rounded-2xl border border-[#F0E0BC] bg-[#FBF3E3] px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
+        <p class="text-sm text-[#8A6420]">Please verify your email address.</p>
+        <form method="POST" action="{{ url_for('resend_verification') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="text-sm font-medium text-[#8A6420] underline underline-offset-2">Resend email</button>
+        </form>
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Mobile bottom nav -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-30 bg-card/95 backdrop-blur border-t border-line pb-[env(safe-area-inset-bottom)]">
+    <div class="max-w-3xl mx-auto grid grid-cols-3">
+      <a href="{{ url_for('home') }}" class="tab-link {{ 'is-active' if request.endpoint == 'home' }}">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 10.5V19a1 1 0 0 0 1 1H16a1 1 0 0 0 1-1v-8.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Home</span>
+      </a>
+      <a href="{{ url_for('history') }}" class="tab-link {{ 'is-active' if request.endpoint in ['history', 'history_detail'] }}">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none"><path d="M4 5.5h16M4 12h10M4 18.5h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>History</span>
+      </a>
+      <a href="{{ url_for('insights') }}" class="tab-link {{ 'is-active' if request.endpoint == 'insights' }}">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none"><path d="M4 19V9.5M11 19V4.5M18 19v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>Insights</span>
+      </a>
+    </div>
+  </nav>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+<script>
+  (function () {
+    var persist = {{ 'true' if current_user.is_authenticated else 'false' }};
+    function toggle() {
+      var next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+      CheckinTheme.set(next, { persist: persist });
+    }
+    var d = document.getElementById('themeToggleDesktop');
+    var m = document.getElementById('themeToggleMobile');
+    if (d) d.addEventListener('click', toggle);
+    if (m) m.addEventListener('click', toggle);
+  })();
+</script>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

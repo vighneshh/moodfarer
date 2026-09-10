@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Check-in Details{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto space-y-6">
+
+  <div class="flex items-center justify-between">
+    <a href="{{ url_for('history') }}" class="text-sm text-ink-soft flex items-center gap-1.5 hover:text-ink transition-colors">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      History
+    </a>
+    <div class="flex items-center gap-4">
+      <a href="{{ url_for('assessment', date=record.assessment_date.isoformat()) }}"
+         class="text-sm font-medium text-moss-600 hover:text-moss-700 transition-colors">
+        Edit
+      </a>
+      <form method="POST" action="{{ url_for('delete_assessment', assessment_id=record.id) }}"
+            onsubmit="return confirm('Delete this check-in? This cannot be undone.');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="text-sm font-medium text-brick hover:opacity-80 transition-opacity">
+          Delete
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="text-center pt-2">
+    <p class="text-ink-soft text-sm">{{ record.assessment_date.strftime('%A, %B %-d, %Y') }}</p>
+    <div class="mt-4 num-display text-6xl leading-none">{{ record.total_score }}</div>
+    <p class="text-ink-faint text-sm mt-2">Total Score</p>
+    <div class="inline-flex mt-4 px-4 py-2 rounded-full {{ tone.bg }} {{ tone.border }} border">
+      <span class="text-sm font-medium {{ tone.text }}">{{ record.severity }}</span>
+    </div>
+  </div>
+
+  {% if previous %}
+    {% set diff = record.total_score - previous.total_score %}
+    <p class="text-center text-sm text-ink-soft">
+      Compared with {{ previous.assessment_date.strftime('%b %-d') }}:
+      <span class="font-medium {{ 'text-moss-600' if diff <= 0 else 'text-clay' }}">
+        {% if diff == 0 %}No change{% elif diff < 0 %}↓ {{ diff * -1 }} points{% else %}↑ {{ diff }} points{% endif %}
+      </span>
+    </p>
+  {% endif %}
+
+  {% if show_care_note %}
+  <div class="text-left rounded-2xl bg-moss-50 border border-moss-100 p-5">
+    <p class="text-sm text-ink leading-relaxed">
+      A few answers that day touched on heavy thoughts. If that's still true for you, support is available —
+      in the US, call or text <span class="font-semibold">988</span> to reach the Suicide &amp; Crisis Lifeline.
+    </p>
+  </div>
+  {% endif %}
+
+  <section class="rounded-3xl bg-card border border-line shadow-soft p-6">
+    <h2 class="font-semibold text-[15px] mb-4">By category</h2>
+    <div class="space-y-4">
+      {% for cat in breakdown %}
+      <div>
+        <div class="flex items-center justify-between text-sm mb-1.5">
+          <span class="text-ink-soft">{{ cat.name }}</span>
+          <span class="font-medium num-display">{{ cat.average }} / 4</span>
+        </div>
+        <div class="h-1.5 rounded-full bg-paper overflow-hidden">
+          <div class="h-full rounded-full bg-moss-400" style="width: {{ (cat.average / cat.max * 100) | round(1) }}%"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="rounded-3xl bg-card border border-line shadow-soft p-6">
+    <h2 class="font-semibold text-[15px] mb-4">Your answers</h2>
+    <div class="divide-y divide-line">
+      {% for q in questions %}
+      <div class="py-3 flex items-center justify-between gap-4">
+        <p class="text-sm text-ink-soft leading-snug">{{ q.text }}</p>
+        <span class="num-display text-sm font-semibold w-6 text-right shrink-0">{{ record.answers.get(q.id, '—') }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if record.notes %}
+  <section class="rounded-3xl bg-card border border-line shadow-soft p-6">
+    <h2 class="font-semibold text-[15px] mb-2">Notes</h2>
+    <p class="text-sm text-ink-soft leading-relaxed whitespace-pre-line">{{ record.notes }}</p>
+  </section>
+  {% endif %}
+
+</div>
+{% endblock %}

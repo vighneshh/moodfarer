@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Daily Check-in{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+
+  {% if not is_today %}
+  <div class="mb-5 inline-flex items-center gap-2 text-xs font-medium text-moss-600 bg-moss-50 border border-moss-100 rounded-full px-3 py-1.5">
+    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"><path d="M4 5.5h16M4 12h10M4 18.5h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Logging for {{ target_date_display }}
+  </div>
+  {% endif %}
+
+  <div class="flex items-center justify-between mb-1">
+    <p id="categoryLabel" class="text-sm font-medium text-moss-600">Thoughts &amp; Feelings</p>
+    <p id="questionCount" class="text-sm text-ink-faint num-display">1 / 25</p>
+  </div>
+
+  <div class="progress-track mb-8">
+    {% for q in questions %}
+      <div class="progress-seg"><div class="progress-seg-fill" data-seg="{{ loop.index0 }}"></div></div>
+    {% endfor %}
+  </div>
+
+  <div id="questionPanel" class="question-panel">
+    <h1 id="questionText" class="text-2xl font-semibold leading-snug tracking-tight mb-7 min-h-[4.5rem]"></h1>
+
+    <div id="answerOptions" class="space-y-2.5"></div>
+
+    <p id="careNote" class="hidden mt-5 text-sm text-ink-soft leading-relaxed bg-moss-50 border border-moss-100 rounded-2xl p-4">
+      If this feels heavy right now, you don't have to carry it alone. Consider reaching out to a crisis line or someone you trust.
+    </p>
+  </div>
+
+  <div class="mt-10 flex items-center gap-3">
+    <button id="backBtn" class="hidden flex-1 rounded-2xl border border-line py-4 font-medium text-ink-soft active:scale-[0.99] transition-transform">
+      ← Back
+    </button>
+    <button id="nextBtn" disabled class="flex-1 rounded-2xl bg-moss-500 py-4 font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99] transition-transform">
+      Next →
+    </button>
+  </div>
+
+  <p id="errorMsg" class="hidden mt-4 text-sm text-brick text-center"></p>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.__QUESTIONS__ = {{ questions | tojson }};
+  window.__ANSWER_SCALE__ = {{ answer_scale | tojson }};
+  window.__CATEGORY_NAMES__ = {{ categories | tojson }};
+  window.__EXISTING_ANSWERS__ = {{ existing_answers | tojson }};
+  window.__TARGET_DATE__ = {{ target_date | tojson }};
+  window.__RESULT_URL_BASE__ = "{{ url_for('result', assessment_id=0) }}".replace('/0', '/');
+</script>
+<script src="{{ url_for('static', filename='js/assessment.js') }}"></script>
+{% endblock %}

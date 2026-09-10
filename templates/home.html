@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Check-in · Home{% endblock %}
+
+{% block content %}
+{% set hour = today.strftime('%H') | int %}
+{% set greeting = 'Good morning' if hour < 12 else ('Good afternoon' if hour < 18 else 'Good evening') %}
+
+<div class="space-y-6">
+
+  <div class="pt-1">
+    <h1 class="text-[26px] font-semibold tracking-tight leading-tight">{{ greeting }} 👋</h1>
+    <p class="text-ink-soft mt-1">Ready for today's check-in?</p>
+  </div>
+
+  {% if stats.today %}
+    <section class="rounded-3xl bg-card border border-line shadow-soft p-6">
+      <div class="flex items-center gap-2 text-moss-600 font-medium text-sm">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Today's assessment completed
+      </div>
+      <div class="mt-4 flex items-end gap-4">
+        <div class="num-display text-5xl leading-none">{{ stats.today.total_score }}</div>
+        <div class="pb-1">
+          <p class="text-ink-soft text-sm">{{ stats.today.severity }}</p>
+        </div>
+      </div>
+      <div class="mt-6 grid grid-cols-2 gap-3">
+        <a href="{{ url_for('result', assessment_id=stats.today.id) }}"
+           class="text-center rounded-2xl border border-line py-3.5 font-medium text-sm text-ink hover:bg-paper transition-colors">
+          View assessment
+        </a>
+        <a href="{{ url_for('assessment') }}"
+           class="text-center rounded-2xl bg-moss-500 py-3.5 font-medium text-sm text-white hover:bg-moss-600 transition-colors">
+          Update assessment
+        </a>
+      </div>
+    </section>
+  {% else %}
+    <section class="rounded-3xl bg-card border border-line shadow-soft p-6">
+      <h2 class="font-semibold text-lg">Today's Check-in</h2>
+      <p class="text-ink-soft text-sm mt-1.5 leading-relaxed">Take a few minutes to check in with yourself. It's just you and 25 quick questions.</p>
+      <a href="{{ url_for('assessment') }}"
+         class="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-moss-500 py-4 font-medium text-white shadow-lift active:scale-[0.99] transition-transform">
+        Start Assessment
+      </a>
+    </section>
+  {% endif %}
+
+  {% if trend.scores %}
+  <section class="rounded-3xl bg-card border border-line shadow-soft p-6">
+    <div class="flex items-center justify-between">
+      <h2 class="font-semibold text-[15px]">Your recent trend</h2>
+      <span class="text-xs text-ink-faint">Last 7 days</span>
+    </div>
+    <div class="mt-4 h-40">
+      <canvas id="trendChart"></canvas>
+    </div>
+    <div class="mt-5 grid grid-cols-2 gap-3 pt-5 border-t border-line">
+      <div>
+        <p class="text-2xl font-semibold num-display">{{ stats.avg_7 if stats.avg_7 is not none else '—' }}</p>
+        <p class="text-xs text-ink-faint mt-0.5">Average</p>
+      </div>
+      <div>
+        <p class="text-2xl font-semibold num-display">{{ stats.completed_7 }}/7</p>
+        <p class="text-xs text-ink-faint mt-0.5">Completed</p>
+      </div>
+    </div>
+  </section>
+  {% else %}
+  <section class="rounded-3xl bg-card border border-dashed border-line p-6 text-center">
+    <p class="text-ink-soft text-sm leading-relaxed">Your trend will appear here once you've completed a few check-ins.</p>
+  </section>
+  {% endif %}
+
+  <section class="grid grid-cols-2 gap-3">
+    <a href="{{ url_for('history') }}" class="rounded-2xl bg-card border border-line p-4 flex flex-col gap-2 hover:border-moss-200 transition-colors">
+      <svg class="w-5 h-5 text-moss-500" viewBox="0 0 24 24" fill="none"><path d="M4 5.5h16M4 12h10M4 18.5h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <span class="font-medium text-sm">History</span>
+    </a>
+    <a href="{{ url_for('insights') }}" class="rounded-2xl bg-card border border-line p-4 flex flex-col gap-2 hover:border-moss-200 transition-colors">
+      <svg class="w-5 h-5 text-moss-500" viewBox="0 0 24 24" fill="none"><path d="M4 19V9.5M11 19V4.5M18 19v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <span class="font-medium text-sm">Insights</span>
+    </a>
+  </section>
+
+  {% if stats.streak and stats.streak > 1 %}
+  <p class="text-center text-sm text-ink-faint">{{ stats.streak }}-day streak — keep it going.</p>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  const trendData = {
+    labels: {{ trend.labels | tojson }},
+    scores: {{ trend.scores | tojson }},
+  };
+
+  const ctx = document.getElementById('trendChart');
+  if (ctx && trendData.scores.length) {
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: trendData.labels,
+        datasets: [{
+          data: trendData.scores,
+          borderColor: '#4F6F52',
+          backgroundColor: 'rgba(79, 111, 82, 0.08)',
+          borderWidth: 2.5,
+          tension: 0.35,
+          fill: true,
+          pointRadius: 3,
+          pointBackgroundColor: '#4F6F52',
+          pointBorderColor: '#FFFFFF',
+          pointBorderWidth: 1.5,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: {
+          backgroundColor: '#23261F', padding: 10, cornerRadius: 10, displayColors: false,
+        } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#8A9084', font: { size: 11 } } },
+          y: { min: 0, max: 100, grid: { color: '#EEEFEA' }, ticks: { color: '#8A9084', font: { size: 11 }, stepSize: 25 } },
+        },
+      },
+    });
+  }
+</script>
+{% endblock %}

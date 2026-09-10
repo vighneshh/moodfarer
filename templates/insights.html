@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Insights{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <div>
+    <h1 class="text-[22px] font-semibold tracking-tight">Insights</h1>
+    <p class="text-ink-soft text-sm mt-1">Patterns across everything you've logged.</p>
+  </div>
+
+  {% if data %}
+
+  <section class="grid grid-cols-2 gap-3">
+    <div class="rounded-2xl bg-card border border-line p-4">
+      <p class="num-display text-2xl font-semibold">{{ data.overall_average }}</p>
+      <p class="text-xs text-ink-faint mt-1">Overall average</p>
+    </div>
+    <div class="rounded-2xl bg-card border border-line p-4">
+      <p class="num-display text-2xl font-semibold">{{ data.total_count }}</p>
+      <p class="text-xs text-ink-faint mt-1">Check-ins logged</p>
+    </div>
+  </section>
+
+  <section class="rounded-3xl bg-card border border-line shadow-soft p-6">
+    <h2 class="font-semibold text-[15px] mb-4">Category averages</h2>
+    <div class="space-y-4">
+      {% for cat in data.category_averages %}
+      <div>
+        <div class="flex items-center justify-between text-sm mb-1.5">
+          <span class="text-ink-soft">{{ cat.name }}</span>
+          <span class="font-medium num-display">{{ cat.average }} / 4</span>
+        </div>
+        <div class="h-1.5 rounded-full bg-paper overflow-hidden">
+          <div class="h-full rounded-full bg-moss-400" style="width: {{ (cat.average / 4 * 100) | round(1) }}%"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="rounded-3xl bg-card border border-line shadow-soft p-6">
+    <h2 class="font-semibold text-[15px] mb-1">Recurring challenges</h2>
+    <p class="text-xs text-ink-faint mb-4">Your highest-averaging items overall</p>
+    <div class="space-y-3">
+      {% for item in data.top_challenges %}
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <p class="text-sm leading-snug">{{ item.text }}</p>
+          <p class="text-xs text-ink-faint mt-0.5">{{ item.category }}</p>
+        </div>
+        <span class="num-display text-sm font-semibold shrink-0">{{ item.average }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="rounded-3xl bg-card border border-line shadow-soft p-6">
+    <h2 class="font-semibold text-[15px] mb-4">Check-in consistency</h2>
+    <p class="text-xs text-ink-faint mb-3">Last 30 days</p>
+    <div class="grid grid-cols-10 gap-1.5">
+      {% for done in data.consistency %}
+        <div class="aspect-square rounded-md {{ 'bg-moss-400' if done else 'bg-paper border border-line' }}"></div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="grid grid-cols-2 gap-3">
+    <div class="rounded-2xl bg-card border border-line p-4">
+      <p class="text-xs text-ink-faint mb-1">Best day</p>
+      <p class="num-display text-xl font-semibold">{{ data.best.total_score }}</p>
+      <p class="text-xs text-ink-faint mt-0.5">{{ data.best.assessment_date.strftime('%b %-d') }}</p>
+    </div>
+    <div class="rounded-2xl bg-card border border-line p-4">
+      <p class="text-xs text-ink-faint mb-1">Hardest day</p>
+      <p class="num-display text-xl font-semibold">{{ data.hardest.total_score }}</p>
+      <p class="text-xs text-ink-faint mt-0.5">{{ data.hardest.assessment_date.strftime('%b %-d') }}</p>
+    </div>
+  </section>
+
+  {% else %}
+  <div class="rounded-3xl bg-card border border-dashed border-line p-8 text-center">
+    <p class="text-ink-soft text-sm leading-relaxed">Complete a few check-ins and your patterns will show up here.</p>
+    <a href="{{ url_for('assessment') }}" class="inline-block mt-4 rounded-2xl bg-moss-500 px-5 py-3 font-medium text-sm text-white">
+      Start Assessment
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

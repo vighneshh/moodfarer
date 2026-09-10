@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Assessment Complete{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto pt-6 text-center">
+
+  <div class="w-14 h-14 mx-auto rounded-full bg-moss-500 flex items-center justify-center">
+    <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+
+  <h1 class="mt-5 text-xl font-semibold tracking-tight">Assessment Complete</h1>
+  <p class="text-ink-soft text-sm mt-1">{{ record.assessment_date.strftime('%A, %B %-d') }}</p>
+
+  <div class="mt-8 num-display text-7xl leading-none">{{ record.total_score }}</div>
+  <p class="text-ink-faint text-sm mt-2">Total Score</p>
+
+  <div class="inline-flex mt-4 px-4 py-2 rounded-full {{ tone.bg }} {{ tone.border }} border">
+    <span class="text-sm font-medium {{ tone.text }}">{{ record.severity }}</span>
+  </div>
+
+  {% if previous %}
+    {% set diff = record.total_score - previous.total_score %}
+    <p class="mt-5 text-sm text-ink-soft">
+      Compared with your previous assessment
+      <br>
+      <span class="font-medium {{ 'text-moss-600' if diff <= 0 else 'text-clay' }}">
+        {% if diff == 0 %}No change{% elif diff < 0 %}↓ {{ diff * -1 }} points{% else %}↑ {{ diff }} points{% endif %}
+      </span>
+    </p>
+  {% else %}
+    <p class="mt-5 text-sm text-ink-faint">This is your first recorded assessment.</p>
+  {% endif %}
+
+  {% if show_care_note %}
+  <div class="mt-8 text-left rounded-2xl bg-moss-50 border border-moss-100 p-5">
+    <p class="text-sm text-ink leading-relaxed">
+      A few of your answers touched on some very heavy thoughts. Please know that support is available right now —
+      you don't have to navigate this alone. If you're in the US, you can call or text <span class="font-semibold">988</span>
+      to reach the Suicide &amp; Crisis Lifeline. If you're elsewhere, a local crisis line or emergency number is a good next step.
+    </p>
+  </div>
+  {% endif %}
+
+  <div class="mt-9 space-y-2.5">
+    <a href="{{ url_for('history_detail', assessment_id=record.id) }}"
+       class="block rounded-2xl border border-line py-4 font-medium text-ink hover:bg-card transition-colors">
+      View Details
+    </a>
+    <a href="{{ url_for('home') }}"
+       class="block rounded-2xl bg-moss-500 py-4 font-medium text-white active:scale-[0.99] transition-transform">
+      Done
+    </a>
+  </div>
+
+</div>
+{% endblock %}

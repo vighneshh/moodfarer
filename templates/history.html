@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}History{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <div class="flex items-start justify-between gap-4">
+    <div>
+      <h1 class="text-[22px] font-semibold tracking-tight">History</h1>
+      <p class="text-ink-soft text-sm mt-1">Every check-in you've completed, most recent first.</p>
+    </div>
+  </div>
+
+  <section class="rounded-2xl bg-card border border-line p-4">
+    <form method="GET" action="{{ url_for('assessment') }}" class="flex items-end gap-3 flex-wrap">
+      <div class="flex-1 min-w-[10rem]">
+        <label for="backfillDate" class="block text-xs font-medium text-ink-soft mb-1.5">Log a past day</label>
+        <input type="date" id="backfillDate" name="date" max="{{ today.isoformat() }}" required
+               class="w-full rounded-xl border border-line px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent">
+      </div>
+      <button type="submit" class="rounded-xl bg-moss-500 px-4 py-2.5 text-sm font-medium text-white active:scale-[0.99] transition-transform">
+        Go
+      </button>
+    </form>
+  </section>
+
+  {% if assessments %}
+    <div class="space-y-2.5">
+      {% for a in assessments %}
+      <a href="{{ url_for('history_detail', assessment_id=a.id) }}"
+         class="flex items-center justify-between gap-4 rounded-2xl bg-card border border-line p-4 hover:border-moss-200 transition-colors">
+        <div>
+          <p class="font-medium text-[15px]">{{ a.assessment_date.strftime('%A') }}</p>
+          <p class="text-xs text-ink-faint mt-0.5">{{ a.assessment_date.strftime('%B %-d, %Y') }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-medium px-2.5 py-1 rounded-full {{ tones[a.id].bg }} {{ tones[a.id].text }} {{ tones[a.id].border }} border">
+            {{ a.severity }}
+          </span>
+          <span class="num-display text-lg font-semibold w-8 text-right">{{ a.total_score }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    <section class="rounded-2xl bg-card border border-line p-4 flex items-center justify-between flex-wrap gap-3">
+      <p class="text-sm text-ink-soft">Export your data</p>
+      <div class="flex items-center gap-2">
+        <a href="{{ url_for('export_csv') }}" class="rounded-xl border border-line px-3.5 py-2 text-sm font-medium text-ink hover:bg-paper transition-colors">CSV</a>
+        <a href="{{ url_for('export_xlsx') }}" class="rounded-xl border border-line px-3.5 py-2 text-sm font-medium text-ink hover:bg-paper transition-colors">Excel</a>
+      </div>
+    </section>
+  {% else %}
+    <div class="rounded-3xl bg-card border border-dashed border-line p-8 text-center">
+      <p class="text-ink-soft text-sm leading-relaxed">No check-ins yet. Once you complete your first assessment, it'll show up here.</p>
+      <a href="{{ url_for('assessment') }}" class="inline-block mt-4 rounded-2xl bg-moss-500 px-5 py-3 font-medium text-sm text-white">
+        Start Assessment
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
