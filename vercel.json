@@ -9,6 +9,6 @@
     { "src": "/(.*)", "dest": "/app.py" }
   ],
   "crons": [
-    { "path": "/api/cron/send-reminders", "schedule": "*/15 * * * *" }
+    { "path": "/api/cron/send-reminders", "schedule": "30 16 * * *" }
   ]
 }
