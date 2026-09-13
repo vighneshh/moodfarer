@@ -98,6 +98,14 @@
     scores: {{ trend.scores | tojson }},
   };
 
+  const style = getComputedStyle(document.documentElement);
+  const accent = style.getPropertyValue('--color-moss-500').trim();
+  const accentRgb = style.getPropertyValue('--color-moss-500-rgb').trim();
+  const cardColor = style.getPropertyValue('--color-card').trim();
+  const inkFaint = style.getPropertyValue('--color-ink-faint').trim();
+  const lineColor = style.getPropertyValue('--color-line').trim();
+  const inkColor = style.getPropertyValue('--color-ink').trim();
+
   const ctx = document.getElementById('trendChart');
   if (ctx && trendData.scores.length) {
     new Chart(ctx, {
@@ -106,14 +114,14 @@
         labels: trendData.labels,
         datasets: [{
           data: trendData.scores,
-          borderColor: '#3A6B8A',
-          backgroundColor: 'rgba(58, 107, 138, 0.08)',
+          borderColor: accent,
+          backgroundColor: `rgba(${accentRgb}, 0.08)`,
           borderWidth: 2.5,
           tension: 0.35,
           fill: true,
           pointRadius: 3,
-          pointBackgroundColor: '#3A6B8A',
-          pointBorderColor: '#FFFFFF',
+          pointBackgroundColor: accent,
+          pointBorderColor: cardColor,
           pointBorderWidth: 1.5,
         }],
       },
@@ -121,11 +129,12 @@
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: {
-          backgroundColor: '#23261F', padding: 10, cornerRadius: 10, displayColors: false,
+          backgroundColor: inkColor, titleColor: cardColor, bodyColor: cardColor,
+          padding: 10, cornerRadius: 10, displayColors: false,
         } },
         scales: {
-          x: { grid: { display: false }, ticks: { color: '#8A9084', font: { size: 11 } } },
-          y: { min: 0, max: 100, grid: { color: '#EEEFEA' }, ticks: { color: '#8A9084', font: { size: 11 }, stepSize: 25 } },
+          x: { grid: { display: false }, ticks: { color: inkFaint, font: { size: 11 } } },
+          y: { min: 0, max: 100, grid: { color: lineColor }, ticks: { color: inkFaint, font: { size: 11 }, stepSize: 25 } },
         },
       },
     });

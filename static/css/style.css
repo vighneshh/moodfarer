@@ -8,20 +8,38 @@
   --color-ink-soft: #565D53;
   --color-ink-faint: #8A9084;
   --color-line: #E4E5DF;
-  --color-accent-tint: #EAF1F6;
-  --color-accent-tint-strong: #D2E3ED;
+  --color-accent-tint: #E8F1FA;
+  --color-accent-tint-strong: #CFE3F5;
+  --color-moss-50: #E8F1FA;
+  --color-moss-100: #CFE3F5;
+  --color-moss-200: #9FC7EA;
+  --color-moss-300: #6FA9DD;
+  --color-moss-400: #4A8CCB;
+  --color-moss-500: #2E70AF;
+  --color-moss-600: #255A8C;
+  --color-moss-700: #1E4A72;
+  --color-moss-500-rgb: 46, 112, 175;
 }
 
 .dark {
   color-scheme: dark;
-  --color-paper: #1B1D18;
-  --color-card: #23261F;
-  --color-ink: #EDEEE7;
-  --color-ink-soft: #A7ACA0;
-  --color-ink-faint: #787D70;
-  --color-line: #34362E;
-  --color-accent-tint: rgba(79, 134, 168, 0.16);
-  --color-accent-tint-strong: rgba(79, 134, 168, 0.28);
+  --color-paper: #0B0F1A;
+  --color-card: #121826;
+  --color-ink: #F5F7FA;
+  --color-ink-soft: #97A3B8;
+  --color-ink-faint: #6B7688;
+  --color-line: #232B3D;
+  --color-accent-tint: rgba(109, 131, 240, 0.18);
+  --color-accent-tint-strong: rgba(109, 131, 240, 0.30);
+  --color-moss-50: #EEF1FF;
+  --color-moss-100: #DDE3FE;
+  --color-moss-200: #BAC5FC;
+  --color-moss-300: #98A8FA;
+  --color-moss-400: #818CF8;
+  --color-moss-500: #6D83F0;
+  --color-moss-600: #5A72E0;
+  --color-moss-700: #4C5FC7;
+  --color-moss-500-rgb: 109, 131, 240;
 }
 
 * {
@@ -54,11 +72,7 @@ input::placeholder, textarea::placeholder {
 }
 
 .tab-link.is-active {
-  color: #3A6B8A;
-}
-
-.dark .tab-link.is-active {
-  color: #7BA9C4;
+  color: var(--color-moss-500);
 }
 
 .tab-icon {
@@ -109,7 +123,7 @@ input::placeholder, textarea::placeholder {
 }
 
 .answer-card.is-selected {
-  border-color: #3A6B8A;
+  border-color: var(--color-moss-500);
   background-color: var(--color-accent-tint);
 }
 
@@ -129,7 +143,7 @@ input::placeholder, textarea::placeholder {
 }
 
 .answer-card.is-selected .value-chip {
-  background: #3A6B8A;
+  background: var(--color-moss-500);
   color: #F5F6F2;
 }
 
@@ -150,7 +164,7 @@ input::placeholder, textarea::placeholder {
 .progress-seg-fill {
   height: 100%;
   width: 0%;
-  background: #3A6B8A;
+  background: var(--color-moss-500);
   border-radius: 999px;
   transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
