@@ -4,8 +4,6 @@
     { "src": "app.py", "use": "@vercel/python" }
   ],
   "routes": [
-    { "src": "/static/(.*)", "dest": "/static/$1" },
-    { "src": "/sw.js", "dest": "/app.py" },
     { "src": "/(.*)", "dest": "/app.py" }
   ],
   "crons": [
