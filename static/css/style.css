@@ -8,8 +8,8 @@
   --color-ink-soft: #565D53;
   --color-ink-faint: #8A9084;
   --color-line: #E4E5DF;
-  --color-accent-tint: #EEF3EC;
-  --color-accent-tint-strong: #DCE7D8;
+  --color-accent-tint: #EAF1F6;
+  --color-accent-tint-strong: #D2E3ED;
 }
 
 .dark {
@@ -20,8 +20,8 @@
   --color-ink-soft: #A7ACA0;
   --color-ink-faint: #787D70;
   --color-line: #34362E;
-  --color-accent-tint: rgba(107, 150, 96, 0.16);
-  --color-accent-tint-strong: rgba(107, 150, 96, 0.28);
+  --color-accent-tint: rgba(79, 134, 168, 0.16);
+  --color-accent-tint-strong: rgba(79, 134, 168, 0.28);
 }
 
 * {
@@ -54,11 +54,11 @@ input::placeholder, textarea::placeholder {
 }
 
 .tab-link.is-active {
-  color: #4F6F52;
+  color: #3A6B8A;
 }
 
 .dark .tab-link.is-active {
-  color: #93B589;
+  color: #7BA9C4;
 }
 
 .tab-icon {
@@ -109,7 +109,7 @@ input::placeholder, textarea::placeholder {
 }
 
 .answer-card.is-selected {
-  border-color: #4F6F52;
+  border-color: #3A6B8A;
   background-color: var(--color-accent-tint);
 }
 
@@ -129,7 +129,7 @@ input::placeholder, textarea::placeholder {
 }
 
 .answer-card.is-selected .value-chip {
-  background: #4F6F52;
+  background: #3A6B8A;
   color: #F5F6F2;
 }
 
@@ -150,7 +150,7 @@ input::placeholder, textarea::placeholder {
 .progress-seg-fill {
   height: 100%;
   width: 0%;
-  background: #4F6F52;
+  background: #3A6B8A;
   border-radius: 999px;
   transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }

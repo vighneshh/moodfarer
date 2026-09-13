@@ -31,14 +31,14 @@
           'ink-soft': 'var(--color-ink-soft)',
           'ink-faint': 'var(--color-ink-faint)',
           moss: {
-            50:  '#EEF3EC',
-            100: '#DCE7D8',
-            200: '#BBD0B4',
-            300: '#93B589',
-            400: '#6B9660',
-            500: '#4F6F52',
-            600: '#3E5941',
-            700: '#324833',
+            50:  '#EAF1F6',
+            100: '#D2E3ED',
+            200: '#A8C7DB',
+            300: '#7BA9C4',
+            400: '#4F86A8',
+            500: '#3A6B8A',
+            600: '#2E5570',
+            700: '#25455A',
           },
           ochre: '#C98A4B',
           amber: '#D7A94A',
@@ -110,7 +110,6 @@
   </button>
 
   <main class="flex-1 w-full max-w-3xl mx-auto px-4 md:px-8 pb-28 md:pb-16 pt-16 md:pt-10">
-  
     {% if get_flashed_messages() %}
       <div class="mb-4 space-y-2">
         {% for category, message in get_flashed_messages(with_categories=true) %}
@@ -138,15 +137,15 @@
   <nav class="md:hidden fixed bottom-0 inset-x-0 z-30 bg-card/95 backdrop-blur border-t border-line pb-[env(safe-area-inset-bottom)]">
     <div class="max-w-3xl mx-auto grid grid-cols-3">
       <a href="{{ url_for('home') }}" class="tab-link {{ 'is-active' if request.endpoint == 'home' }}">
-        <svg class="tab-icon" viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 10.5V19a1 1 0 0 0 1 1H16a1 1 0 0 0 1-1v-8.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="w-[22px] h-[22px] shrink-0" viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 10.5V19a1 1 0 0 0 1 1H16a1 1 0 0 0 1-1v-8.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Home</span>
       </a>
       <a href="{{ url_for('history') }}" class="tab-link {{ 'is-active' if request.endpoint in ['history', 'history_detail'] }}">
-        <svg class="tab-icon" viewBox="0 0 24 24" fill="none"><path d="M4 5.5h16M4 12h10M4 18.5h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <svg class="w-[22px] h-[22px] shrink-0" viewBox="0 0 24 24" fill="none"><path d="M4 5.5h16M4 12h10M4 18.5h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         <span>History</span>
       </a>
       <a href="{{ url_for('insights') }}" class="tab-link {{ 'is-active' if request.endpoint == 'insights' }}">
-        <svg class="tab-icon" viewBox="0 0 24 24" fill="none"><path d="M4 19V9.5M11 19V4.5M18 19v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <svg class="w-[22px] h-[22px] shrink-0" viewBox="0 0 24 24" fill="none"><path d="M4 19V9.5M11 19V4.5M18 19v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         <span>Insights</span>
       </a>
     </div>
