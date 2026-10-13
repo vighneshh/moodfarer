@@ -85,5 +85,29 @@
     </a>
   </div>
   {% endif %}
+
+  {% if rewire_data %}
+  <section class="rounded-3xl bg-card border border-line shadow-soft p-6">
+    <div class="flex items-center justify-between mb-1">
+      <h2 class="font-semibold text-[15px]">Rewirement consistency</h2>
+      <span class="num-display text-lg font-semibold">{{ rewire_data.overall_rate }}%</span>
+    </div>
+    <p class="text-xs text-ink-faint mb-4">Across {{ rewire_data.weeks_logged }} week{{ 's' if rewire_data.weeks_logged != 1 }}</p>
+    <div class="space-y-3">
+      {% for p in rewire_data.by_practice %}
+      <div>
+        <div class="flex items-center justify-between text-sm mb-1.5">
+          <span class="text-ink-soft">{{ p.title }}</span>
+          <span class="font-medium num-display">{{ p.rate }}%</span>
+        </div>
+        <div class="h-1.5 rounded-full bg-paper overflow-hidden">
+          <div class="h-full rounded-full bg-moss-400" style="width: {{ p.rate }}%"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <a href="{{ url_for('rewire') }}" class="inline-block mt-5 text-xs font-medium text-moss-600">Go to this week's rewirements →</a>
+  </section>
+  {% endif %}
 </div>
 {% endblock %}

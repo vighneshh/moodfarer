@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Rewirements{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto space-y-5">
+
+  <div>
+    <h1 class="text-[22px] font-semibold tracking-tight">Rewirements</h1>
+    <p class="text-ink-soft text-sm mt-1">Small weekly practices backed by well-being research.</p>
+  </div>
+
+  <div class="flex items-center justify-between rounded-2xl bg-card border border-line px-4 py-3">
+    <a href="{{ url_for('rewire', week=prev_week) }}" class="text-ink-soft hover:text-ink transition-colors p-1 -ml-1">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <div class="text-center">
+      <p class="text-sm font-medium">{{ week_start.strftime('%b %-d') }} – {{ week_end.strftime('%b %-d') }}</p>
+      {% if is_current_week %}<p class="text-xs text-moss-600 mt-0.5">This week</p>{% endif %}
+    </div>
+    {% if not is_future_next %}
+    <a href="{{ url_for('rewire', week=next_week) }}" class="text-ink-soft hover:text-ink transition-colors p-1 -mr-1">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M9 5 16 12l-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    {% else %}
+    <span class="w-4 h-4 opacity-0"></span>
+    {% endif %}
+  </div>
+
+  <div class="text-right">
+    <a href="{{ url_for('rewire_history') }}" class="text-xs font-medium text-moss-600">Past weeks →</a>
+  </div>
+
+  {% for card in cards %}
+  <section class="rounded-3xl bg-card border border-line shadow-soft p-6" data-rewirement="{{ card.key }}">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h2 class="font-semibold text-[15px]">{{ card.title }}</h2>
+        <p class="text-xs text-ink-faint mt-1 leading-relaxed">{{ card.description }}</p>
+      </div>
+      <span class="shrink-0 text-xs font-medium px-2.5 py-1 rounded-full bg-moss-50 text-moss-600 border border-moss-100 num-display rewire-badge">
+        {{ card.done_count }}/{{ card.total_count }}
+      </span>
+    </div>
+
+    {% if card.has_strengths_list %}
+    <div class="mt-4 pt-4 border-t border-line">
+      <p class="text-xs font-medium text-ink-soft mb-2">Your top strengths</p>
+      <form method="POST" action="{{ url_for('rewire_strengths') }}" class="grid grid-cols-2 gap-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% for i in range(1, 5) %}
+        <input type="text" name="strength_{{ i }}" value="{{ strengths[i-1] if strengths|length >= i else '' }}"
+               placeholder="Strength {{ i }}" maxlength="120"
+               class="rounded-xl border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent">
+        {% endfor %}
+        <button type="submit" class="col-span-2 rounded-xl border border-line py-2 text-xs font-medium text-ink-soft hover:bg-paper transition-colors">
+          Save strengths
+        </button>
+      </form>
+    </div>
+    {% endif %}
+
+    <div class="mt-4 flex items-start gap-2 flex-wrap justify-between">
+      {% for d in card.days %}
+      <button type="button"
+              class="rewire-day {{ 'is-done' if d.completed }}"
+              data-key="{{ card.key }}" data-day="{{ d.key }}" data-week="{{ week_start.isoformat() }}">
+        <span class="rewire-day-dot"></span>
+        <span class="rewire-day-label">{{ d.label }}</span>
+      </button>
+      {% endfor %}
+    </div>
+
+    {% if card.notes_prompt %}
+    <details class="mt-4 pt-4 border-t border-line">
+      <summary class="text-xs font-medium text-moss-600 cursor-pointer select-none">{{ card.notes_prompt }}</summary>
+      <div class="mt-3 space-y-2">
+        {% for d in card.days %}
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-ink-faint w-8 shrink-0">{{ d.label }}</span>
+          <input type="text" value="{{ d.note }}" maxlength="1000"
+                 data-key="{{ card.key }}" data-day="{{ d.key }}" data-week="{{ week_start.isoformat() }}"
+                 class="rewire-note flex-1 rounded-lg border border-line px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent">
+        </div>
+        {% endfor %}
+      </div>
+    </details>
+    {% endif %}
+  </section>
+  {% endfor %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/rewire.js') }}"></script>
+{% endblock %}

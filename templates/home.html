@@ -72,11 +72,25 @@
   </section>
   {% endif %}
 
+    <a href="{{ url_for('rewire') }}" class="block rounded-3xl bg-card border border-line shadow-soft p-6 hover:border-moss-200 transition-colors">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="font-semibold text-[15px]">Rewirements this week</h2>
+        <p class="text-ink-faint text-xs mt-1">Small daily well-being practices</p>
+      </div>
+      <span class="num-display text-2xl font-semibold shrink-0">{{ rewire_summary.done }}/{{ rewire_summary.total }}</span>
+    </div>
+    <div class="mt-4 h-1.5 rounded-full bg-paper overflow-hidden">
+      <div class="h-full rounded-full bg-moss-400" style="width: {{ ((rewire_summary.done / rewire_summary.total * 100) if rewire_summary.total else 0) | round(1) }}%"></div>
+    </div>
+  </a>
+  
   <section class="grid grid-cols-2 gap-3">
     <a href="{{ url_for('history') }}" class="rounded-2xl bg-card border border-line p-4 flex flex-col gap-2 hover:border-moss-200 transition-colors">
       <svg class="w-5 h-5 text-moss-500" viewBox="0 0 24 24" fill="none"><path d="M4 5.5h16M4 12h10M4 18.5h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       <span class="font-medium text-sm">History</span>
     </a>
+    
     <a href="{{ url_for('insights') }}" class="rounded-2xl bg-card border border-line p-4 flex flex-col gap-2 hover:border-moss-200 transition-colors">
       <svg class="w-5 h-5 text-moss-500" viewBox="0 0 24 24" fill="none"><path d="M4 19V9.5M11 19V4.5M18 19v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       <span class="font-medium text-sm">Insights</span>

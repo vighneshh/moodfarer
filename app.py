@@ -30,7 +30,7 @@ from flask_login import (
 
 from extensions import db, csrf
 from oauth import oauth, init_oauth, google_configured
-from models import User, Assessment, PushSubscription
+from models import User, Assessment, PushSubscription, RewirementCheckin
 from email_utils import (
     send_verification_email,
     send_password_reset_email,
@@ -43,6 +43,9 @@ from email_utils import (
     RESET_MAX_AGE,
 )
 from push_utils import push_configured, vapid_public_key, send_push
+
+from rewirements import REWIREMENTS, WEEKDAY_KEYS, WEEKDAY_LABELS, rewirement_for
+
 from questions import (
     QUESTIONS,
     CATEGORIES,
@@ -257,6 +260,34 @@ def insights_data(user_id):
     }
 
 
+def rewirement_insights(user_id):
+    rows = RewirementCheckin.query.filter_by(user_id=user_id).all()
+    if not rows:
+        return None
+
+    weeks_logged = len({r.week_start for r in rows})
+    by_practice = {}
+    for rw in REWIREMENTS:
+        practice_rows = [r for r in rows if r.rewirement_key == rw["key"]]
+        done = sum(1 for r in practice_rows if r.completed)
+        possible = weeks_logged * len(day_keys_for(rw))
+        by_practice[rw["key"]] = {
+            "title": rw["title"],
+            "done": done,
+            "rate": round(done / possible * 100) if possible else 0,
+        }
+
+    total_done = sum(1 for r in rows if r.completed)
+    total_possible = weeks_logged * sum(len(day_keys_for(rw)) for rw in REWIREMENTS)
+
+    return {
+        "weeks_logged": weeks_logged,
+        "total_done": total_done,
+        "overall_rate": round(total_done / total_possible * 100) if total_possible else 0,
+        "by_practice": sorted(by_practice.values(), key=lambda x: x["rate"], reverse=True),
+    }
+
+
 def flash_dev_link(prefix: str, sent: bool, link: str):
     """When SMTP isn't configured, surface the link directly so the flow is
     fully testable without a real mail server."""
@@ -320,6 +351,54 @@ def build_export_rows(user_id):
         rows.append(row)
     return rows
 
+
+def week_start_for(d: date) -> date:
+    """The Sunday that starts the week containing d."""
+    return d - timedelta(days=(d.weekday() + 1) % 7)
+
+
+def day_keys_for(rewirement: dict):
+    if rewirement["type"] == "binary":
+        return [o["key"] for o in rewirement["options"]]
+    return WEEKDAY_KEYS
+
+
+def get_rewirement_week_cards(user_id, week_start: date):
+    rows = RewirementCheckin.query.filter_by(user_id=user_id, week_start=week_start).all()
+    by_key = {(r.rewirement_key, r.day_key): r for r in rows}
+
+    cards = []
+    for rw in REWIREMENTS:
+        days = []
+        done_count = 0
+        for dk in day_keys_for(rw):
+            row = by_key.get((rw["key"], dk))
+            completed = bool(row and row.completed)
+            if completed:
+                done_count += 1
+            label = WEEKDAY_LABELS.get(dk, dk.title()) if rw["type"] == "week" else next(
+                o["label"] for o in rw["options"] if o["key"] == dk
+            )
+            days.append({
+                "key": dk,
+                "label": label,
+                "completed": completed,
+                "note": row.note if row else "",
+            })
+        cards.append({
+            **rw,
+            "days": days,
+            "done_count": done_count,
+            "total_count": len(days),
+        })
+    return cards
+
+
+def get_rewirement_week_summary(user_id, week_start: date):
+    rows = RewirementCheckin.query.filter_by(user_id=user_id, week_start=week_start, completed=True).all()
+    done = len(rows)
+    total = sum(len(day_keys_for(rw)) for rw in REWIREMENTS)
+    return {"done": done, "total": total}
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -768,6 +847,127 @@ def register_routes(app):
             },
         )
 
+    @app.route("/rewire")
+    @login_required
+    def rewire():
+        week_param = request.args.get("week")
+        current_week = week_start_for(date.today())
+        try:
+            week_start = (
+                datetime.strptime(week_param, "%Y-%m-%d").date() if week_param else current_week
+            )
+        except ValueError:
+            week_start = current_week
+        week_start = week_start_for(week_start)
+        if week_start > current_week:
+            week_start = current_week
+
+        cards = get_rewirement_week_cards(current_user.id, week_start)
+        return render_template(
+            "rewire.html",
+            cards=cards,
+            week_start=week_start,
+            week_end=week_start + timedelta(days=6),
+            prev_week=(week_start - timedelta(days=7)).isoformat(),
+            next_week=(week_start + timedelta(days=7)).isoformat(),
+            is_current_week=week_start == current_week,
+            is_future_next=week_start + timedelta(days=7) > current_week,
+            strengths=current_user.signature_strengths,
+        )
+
+    @app.route("/rewire/history")
+    @login_required
+    def rewire_history():
+        week_rows = (
+            db.session.query(RewirementCheckin.week_start)
+            .filter_by(user_id=current_user.id, completed=True)
+            .distinct()
+            .order_by(RewirementCheckin.week_start.desc())
+            .all()
+        )
+        weeks = []
+        for (ws,) in week_rows:
+            summary = get_rewirement_week_summary(current_user.id, ws)
+            weeks.append({"week_start": ws, "week_end": ws + timedelta(days=6), **summary})
+        return render_template("rewire_history.html", weeks=weeks)
+
+    @app.route("/api/rewire/toggle", methods=["POST"])
+    @login_required
+    def rewire_toggle():
+        payload = request.get_json(force=True, silent=True) or {}
+        key = payload.get("rewirement_key")
+        day_key = payload.get("day_key")
+        week_param = payload.get("week_start")
+
+        rw = rewirement_for(key)
+        if rw is None or day_key not in day_keys_for(rw):
+            return jsonify({"error": "Invalid practice or day."}), 400
+
+        try:
+            week_start = datetime.strptime(week_param, "%Y-%m-%d").date()
+        except (TypeError, ValueError):
+            return jsonify({"error": "Invalid week."}), 400
+        week_start = week_start_for(week_start)
+        if week_start > week_start_for(date.today()):
+            return jsonify({"error": "Can't log a future week."}), 400
+
+        row = RewirementCheckin.query.filter_by(
+            user_id=current_user.id, rewirement_key=key, week_start=week_start, day_key=day_key
+        ).first()
+        if row is None:
+            row = RewirementCheckin(
+                user_id=current_user.id, rewirement_key=key, week_start=week_start, day_key=day_key,
+                completed=True,
+            )
+            db.session.add(row)
+        else:
+            row.completed = not row.completed
+        db.session.commit()
+        return jsonify({"completed": row.completed})
+
+    @app.route("/api/rewire/note", methods=["POST"])
+    @login_required
+    def rewire_note():
+        payload = request.get_json(force=True, silent=True) or {}
+        key = payload.get("rewirement_key")
+        day_key = payload.get("day_key")
+        week_param = payload.get("week_start")
+        note = (payload.get("note") or "").strip()[:1000]
+
+        rw = rewirement_for(key)
+        if rw is None or day_key not in day_keys_for(rw):
+            return jsonify({"error": "Invalid practice or day."}), 400
+
+        try:
+            week_start = datetime.strptime(week_param, "%Y-%m-%d").date()
+        except (TypeError, ValueError):
+            return jsonify({"error": "Invalid week."}), 400
+        week_start = week_start_for(week_start)
+
+        row = RewirementCheckin.query.filter_by(
+            user_id=current_user.id, rewirement_key=key, week_start=week_start, day_key=day_key
+        ).first()
+        if row is None:
+            row = RewirementCheckin(
+                user_id=current_user.id, rewirement_key=key, week_start=week_start, day_key=day_key,
+                completed=False,
+            )
+            db.session.add(row)
+        row.note = note
+        db.session.commit()
+        return jsonify({"note": row.note})
+
+    @app.route("/rewire/strengths", methods=["POST"])
+    @login_required
+    def rewire_strengths():
+        strengths = [
+            (request.form.get(f"strength_{i}") or "").strip()[:120] for i in range(1, 5)
+        ]
+        current_user.signature_strengths = strengths
+        db.session.commit()
+        flash("Signature strengths saved.", "success")
+        return redirect(url_for("rewire"))
+
     # -------------------------------------------------------------
     # App routes (all require a signed-in user, all scoped to that user)
     # -------------------------------------------------------------
@@ -777,11 +977,13 @@ def register_routes(app):
     def home():
         stats = get_dashboard_stats(current_user.id)
         trend = trend_series(current_user.id, 7)
+        rewire_summary = get_rewirement_week_summary(current_user.id, week_start_for(date.today()))
         return render_template(
             "home.html",
             stats=stats,
             trend=trend,
             today=date.today(),
+            rewire_summary=rewire_summary,
         )
 
     @app.route("/assessment")
@@ -950,7 +1152,8 @@ def register_routes(app):
     @login_required
     def insights():
         data = insights_data(current_user.id)
-        return render_template("insights.html", data=data)
+        rewire_data = rewirement_insights(current_user.id)
+        return render_template("insights.html", data=data, rewire_data=rewire_data)
 
     @app.route("/api/trend")
     @login_required

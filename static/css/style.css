@@ -191,3 +191,45 @@ input::placeholder, textarea::placeholder {
     transition: none !important;
   }
 }
+
+
+
+/* Rewirement day tracker */
+.rewire-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 32px;
+  padding: 2px 0;
+}
+
+.rewire-day-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-line);
+  background: var(--color-paper);
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.rewire-day:active .rewire-day-dot {
+  transform: scale(0.92);
+}
+
+.rewire-day.is-done .rewire-day-dot {
+  background: var(--color-moss-500);
+  border-color: var(--color-moss-500);
+}
+
+.rewire-day-label {
+  font-size: 10.5px;
+  color: var(--color-ink-faint);
+  transition: color 0.15s ease;
+}
+
+.rewire-day.is-done .rewire-day-label {
+  color: var(--color-ink);
+  font-weight: 500;
+}

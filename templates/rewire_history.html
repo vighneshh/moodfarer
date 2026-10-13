@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Rewirement History{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto space-y-6">
+
+  <div class="flex items-center justify-between">
+    <a href="{{ url_for('rewire') }}" class="text-sm text-ink-soft flex items-center gap-1.5 hover:text-ink transition-colors">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      This week
+    </a>
+  </div>
+
+  <div>
+    <h1 class="text-[22px] font-semibold tracking-tight">Past weeks</h1>
+    <p class="text-ink-soft text-sm mt-1">Every week you've logged a rewirement practice.</p>
+  </div>
+
+  {% if weeks %}
+    <div class="space-y-2.5">
+      {% for w in weeks %}
+      <a href="{{ url_for('rewire', week=w.week_start.isoformat()) }}"
+         class="flex items-center justify-between gap-4 rounded-2xl bg-card border border-line p-4 hover:border-moss-200 transition-colors">
+        <div>
+          <p class="font-medium text-[15px]">{{ w.week_start.strftime('%b %-d') }} – {{ w.week_end.strftime('%b %-d') }}</p>
+        </div>
+        <span class="num-display text-lg font-semibold">{{ w.done }}/{{ w.total }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="rounded-3xl bg-card border border-dashed border-line p-8 text-center">
+      <p class="text-ink-soft text-sm leading-relaxed">No rewirements logged yet. Once you check off your first day, it'll show up here.</p>
+      <a href="{{ url_for('rewire') }}" class="inline-block mt-4 rounded-2xl bg-moss-500 px-5 py-3 font-medium text-sm text-white">
+        Go to this week
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

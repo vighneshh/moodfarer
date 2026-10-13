@@ -81,6 +81,7 @@
       </a>
       <nav class="flex items-center gap-1">
         <a href="{{ url_for('home') }}" class="nav-desktop-link {{ 'is-active' if request.endpoint == 'home' }}">Home</a>
+        <a href="{{ url_for('rewire') }}" class="nav-desktop-link {{ 'is-active' if request.endpoint in ['rewire', 'rewire_history'] }}">Rewire</a>
         <a href="{{ url_for('history') }}" class="nav-desktop-link {{ 'is-active' if request.endpoint in ['history', 'history_detail'] }}">History</a>
         <a href="{{ url_for('insights') }}" class="nav-desktop-link {{ 'is-active' if request.endpoint == 'insights' }}">Insights</a>
         <button type="button" id="themeToggleDesktop" aria-label="Toggle dark mode"
@@ -139,6 +140,10 @@
       <a href="{{ url_for('home') }}" class="tab-link {{ 'is-active' if request.endpoint == 'home' }}">
         <svg class="w-[22px] h-[22px] shrink-0" viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 10.5V19a1 1 0 0 0 1 1H16a1 1 0 0 0 1-1v-8.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Home</span>
+      </a>
+      <a href="{{ url_for('rewire') }}" class="tab-link {{ 'is-active' if request.endpoint in ['rewire', 'rewire_history'] }}">
+        <svg class="w-[22px] h-[22px] shrink-0" viewBox="0 0 24 24" fill="none"><path d="M12 3c2 2.5 3 5 3 7a3 3 0 1 1-6 0c0-2 1-4.5 3-7Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 14c0 3 2 6 5 6M17 14c0 3-2 6-5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>Rewire</span>
       </a>
       <a href="{{ url_for('history') }}" class="tab-link {{ 'is-active' if request.endpoint in ['history', 'history_detail'] }}">
         <svg class="w-[22px] h-[22px] shrink-0" viewBox="0 0 24 24" fill="none"><path d="M4 5.5h16M4 12h10M4 18.5h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>

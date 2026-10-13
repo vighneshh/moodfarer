@@ -21,6 +21,7 @@ class User(UserMixin, db.Model):
     reminder_push_enabled = db.Column(db.Boolean, nullable=False, default=False)
     reminder_time = db.Column(db.String(5), nullable=False, default="19:00")
     reminder_last_sent = db.Column(db.Date, nullable=True)
+    signature_strengths_json = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     assessments = db.relationship(
@@ -28,6 +29,10 @@ class User(UserMixin, db.Model):
     )
     push_subscriptions = db.relationship(
         "PushSubscription", backref="user", lazy=True, cascade="all, delete-orphan"
+    )
+
+    rewirement_checkins = db.relationship(
+        "RewirementCheckin", backref="user", lazy=True, cascade="all, delete-orphan"
     )
 
     def set_password(self, password: str):
@@ -41,6 +46,17 @@ class User(UserMixin, db.Model):
     @property
     def has_password(self) -> bool:
         return bool(self.password_hash)
+
+    @property
+    def signature_strengths(self):
+        try:
+            return json.loads(self.signature_strengths_json) if self.signature_strengths_json else []
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    @signature_strengths.setter
+    def signature_strengths(self, value: list):
+        self.signature_strengths_json = json.dumps(value)
 
 
 class Assessment(db.Model):
@@ -98,3 +114,22 @@ class PushSubscription(db.Model):
             "endpoint": self.endpoint,
             "keys": {"p256dh": self.p256dh, "auth": self.auth},
         }
+
+
+class RewirementCheckin(db.Model):
+    __tablename__ = "rewirement_checkins"
+    __table_args__ = (
+        db.UniqueConstraint(
+            "user_id", "rewirement_key", "week_start", "day_key",
+            name="uq_user_rewirement_week_day",
+        ),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    rewirement_key = db.Column(db.String(64), nullable=False, index=True)
+    week_start = db.Column(db.Date, nullable=False, index=True)
+    day_key = db.Column(db.String(16), nullable=False)
+    completed = db.Column(db.Boolean, nullable=False, default=False)
+    note = db.Column(db.Text, nullable=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
