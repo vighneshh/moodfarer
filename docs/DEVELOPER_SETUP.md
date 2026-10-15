@@ -10,7 +10,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Then open http://localhost:5000. The SQLite database is created automatically at
+Then open http://localhost:5050. The SQLite database is created automatically at
 `/tmp/checkin.db` (override with the `DATABASE_PATH` environment variable).
 
 ## Accounts
