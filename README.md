@@ -82,10 +82,6 @@ If you're struggling, please talk to someone you trust or a healthcare professio
 4. Tick off any weekly habits you did today.
 5. Done. Come back tomorrow.
 
-## Screenshots
-
-*(Add your own screenshots here. Home, the check-in flow, and the Rewire page show the app best.)*
-
 ## For the curious
 
 Moodfarer is a web app that works in any modern browser and is designed phone-first. If you'd like to run it yourself or see how it's built, see the [Developer Setup Guide](docs/DEVELOPER_SETUP.md).
