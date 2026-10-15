@@ -18,6 +18,12 @@ Alongside the check-in, Moodfarer includes small weekly habits ("Rewirements") t
 
 It's designed to feel easy and unhurried: one question at a time, large tap targets, and nothing flashy.
 
+## Try it
+
+Visit https://moodfarer.vercel.app in any browser on your phone or computer. Create a free account with your email or Google, and you can start your first check-in right away.
+
+On a phone, you can add it to your home screen for quick access: in Safari tap Share → Add to Home Screen, or in Chrome tap ⋮ → Add to Home screen.
+
 ## Who is it for?
 
 - People who want to keep a regular eye on their mood without a complicated journal.
