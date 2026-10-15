@@ -1,5 +1,5 @@
 self.addEventListener('push', function (event) {
-  let data = { title: 'Daily Check-in', body: "Don't forget today's check-in." , url: '/' };
+  let data = { title: 'Moodfarer', body: "Don't forget today's check-in." , url: '/' };
   try {
     if (event.data) data = Object.assign(data, event.data.json());
   } catch (e) {

@@ -86,11 +86,11 @@ def send_verification_email(user) -> tuple[bool, str]:
     link = url_for("verify_email", token=token, _external=True)
     body = (
         f"Hi {user.name},\n\n"
-        f"Confirm your email for Daily Check-in by opening this link "
+        f"Confirm your email for Moodfarer by opening this link "
         f"(it expires in 24 hours):\n\n{link}\n\n"
         f"If you didn't create this account, you can ignore this email."
     )
-    sent = send_email("Confirm your email — Daily Check-in", user.email, body)
+    sent = send_email("Confirm your email — Moodfarer", user.email, body)
     return sent, link
 
 
@@ -99,10 +99,10 @@ def send_password_reset_email(user) -> tuple[bool, str]:
     link = url_for("reset_password", token=token, _external=True)
     body = (
         f"Hi {user.name},\n\n"
-        f"We received a request to reset your Daily Check-in password. "
+        f"We received a request to reset your Moodfarer password. "
         f"This link expires in 1 hour:\n\n{link}\n\n"
         f"If you didn't request this, you can safely ignore this email — "
         f"your password won't change."
     )
-    sent = send_email("Reset your password — Daily Check-in", user.email, body)
+    sent = send_email("Reset your password — Moodfarer", user.email, body)
     return sent, link

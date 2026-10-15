@@ -776,7 +776,7 @@ def register_routes(app):
             if user.reminder_email_enabled:
                 try:
                     send_email(
-                        "A gentle nudge — Daily Check-in",
+                        "A gentle nudge — Moodfarer",
                         user.email,
                         f"Hi {user.name},\n\nJust a reminder to complete today's check-in "
                         f"whenever you have a few minutes.\n\n{url_for('home', _external=True)}",
@@ -789,7 +789,7 @@ def register_routes(app):
                 for sub in user.push_subscriptions:
                     ok = send_push(
                         sub.to_subscription_info(),
-                        "Daily Check-in",
+                        "Moodfarer",
                         "Don't forget today's check-in.",
                         url_for("home"),
                     )
