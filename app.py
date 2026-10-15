@@ -961,7 +961,7 @@ def register_routes(app):
     @login_required
     def rewire_strengths():
         strengths = [
-            (request.form.get(f"strength_{i}") or "").strip()[:120] for i in range(1, 5)
+            (request.form.get(f"strength_{i}") or "").strip()[:120] for i in range(1, 6)
         ]
         current_user.signature_strengths = strengths
         db.session.commit()

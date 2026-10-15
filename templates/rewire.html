@@ -47,7 +47,7 @@
       <p class="text-xs font-medium text-ink-soft mb-2">Your top strengths</p>
       <form method="POST" action="{{ url_for('rewire_strengths') }}" class="grid grid-cols-2 gap-2">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        {% for i in range(1, 5) %}
+        {% for i in range(1, 6) %}
         <input type="text" name="strength_{{ i }}" value="{{ strengths[i-1] if strengths|length >= i else '' }}"
                placeholder="Strength {{ i }}" maxlength="120"
                class="rounded-xl border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent">
