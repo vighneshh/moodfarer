@@ -135,7 +135,7 @@
 
   <!-- Mobile bottom nav -->
   <nav class="md:hidden fixed bottom-0 inset-x-0 z-30 bg-card/95 backdrop-blur border-t border-line pb-[env(safe-area-inset-bottom)]">
-    <div class="max-w-3xl mx-auto grid grid-cols-3">
+    <div class="max-w-3xl mx-auto grid grid-cols-4">
       <a href="{{ url_for('home') }}" class="tab-link {{ 'is-active' if request.endpoint == 'home' }}">
         <svg class="w-[22px] h-[22px] shrink-0" viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 10.5V19a1 1 0 0 0 1 1H16a1 1 0 0 0 1-1v-8.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Home</span>
